@@ -1,0 +1,46 @@
+#memory 30GB and cpu 8
+deployment_config:
+  autoscaling_config:
+    min_replicas: 0
+    max_replicas: 8
+    target_num_ongoing_requests_per_replica: 24
+    downscale_delay_s: 3600.0
+    upscale_delay_s: 15.0
+  max_concurrent_queries: 64
+engine_config:
+  model_id:  Qwen/Qwen3-Coder-30B-A3B-Instruct 
+  hf_model_id: Qwen/Qwen3-Coder-30B-A3B-Instruct
+  type: VLLMEngine
+  image: "dkubex123/vllm-openai:v0.11.0"
+  command:
+  - "python3"
+  - "-m"
+  - "vllm.entrypoints.openai.api_server"
+  - "--enforce-eager"
+  - "--enable-auto-tool-choice"
+  - "--tool-call-parser=llama3_json"
+  engine_kwargs:
+    swap-space: 10
+    max-num-batched-tokens: 12288
+    max-num-seqs: 64
+    gpu_memory_utilization: 0.9
+    max-model-len: 12288
+  engine_flags:
+  - enable-prefix-caching
+  - trust-remote-code
+  - disable-log-requests
+  #engine_envs:
+    #VLLM_LOGGING_LEVEL: "DEBUG"
+    #NCCL_DEBUG: "TRCAE"
+  max_total_tokens: 12288
+scaling_config:
+  num_workers: 1
+  num_gpus_per_worker: 1
+  num_cpus_per_worker: 8
+  memory_per_worker: "20G"
+  placement_strategy: "STRICT_PACK"
+  resources_per_worker:
+    accelerator_type_a10: 0.01
+dkubex:
+  needs_token: true
+  catalogue_enabled: true
